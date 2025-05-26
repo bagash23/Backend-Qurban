@@ -7,6 +7,7 @@ import (
 	"masjid/handler"
 	"masjid/helper"
 	"masjid/pengurus"
+	"masjid/penjadwalan"
 	"masjid/qurban"
 	"masjid/user"
 	"net/http"
@@ -52,15 +53,18 @@ func main() {
 	userRepository := user.NewRepository(db)
 	pengurusRepository := pengurus.NewRepository(db)
 	qurbanRepository := qurban.NewRepository(db)
+	penjadwalanRepository := penjadwalan.NewRepository(db)
 	// service
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
 	pengurusService := pengurus.NewService(pengurusRepository)
 	qurbanService := qurban.NewService(qurbanRepository)
+	penjadwalanService := penjadwalan.NewService(penjadwalanRepository)
 	// handler
 	userHandler := handler.NewUserHandler(userService, authService)
 	pengurusHandler := handler.NewPengurusHandler(pengurusService)
 	qurbanHandler := handler.NewQurbanHandler(qurbanService)
+	penjadwalanHandler := handler.NewPenjadwalanHandler(penjadwalanService)
 
 
 	// router
@@ -88,6 +92,10 @@ func main() {
 	private.GET("/qurban-me", qurbanHandler.GetQurbanByPengurus)
 	private.GET("/qurbans/search", qurbanHandler.GetQurbanByMasjidName)
 	private.DELETE("/delete-qurban/:id", qurbanHandler.DeleteQurbanByID)
+	// penjadwalan
+	private.POST("/create-penjadwalan", penjadwalanHandler.RegisterPenjadwlan)
+	private.GET("/penjadwalan-me", penjadwalanHandler.GetPenjadwalanByUserID)
+	private.GET("/penjadwalan/search", penjadwalanHandler.GetPenjadwalanByMasjidName)
 
 
 
@@ -137,6 +145,7 @@ func autoMigrate(db *gorm.DB) {
 		&user.User{},
 		&pengurus.Pengurus{},
 		&qurban.Qurban{},
+		&penjadwalan.Penjadwalan{},
 	)
 	if err != nil {
 		log.Fatal("Gagal melakukan auto-migrate:", err)
