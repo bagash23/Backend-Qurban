@@ -78,8 +78,15 @@ func (h *penjadwalanHandler) GetPenjadwalanByUserID(c *gin.Context) {
 		return
 	}
 
-	formattedPengurusList := penjadwalan.FormatPenjadwalanList(penjadwalanList)
-	response := helper.APIResponse("Success retrieving pengurus data", http.StatusOK, "success", formattedPengurusList)
+	if len(penjadwalanList) == 0 {
+		response := helper.APIResponse("No schedule found", http.StatusNotFound, "error", nil)
+		c.JSON(http.StatusNotFound, response)
+		return
+	}
+
+  	jadwalList := penjadwalan.FormatPenjadwalanToJadwalList(penjadwalanList[0])
+
+	response := helper.APIResponse("Success retrieving pengurus data", http.StatusOK, "success", jadwalList)
 	c.JSON(http.StatusOK, response)
 }
 
@@ -89,15 +96,19 @@ func (h *penjadwalanHandler) GetPenjadwalanByMasjidName(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, helper.APIResponse("Nama masjid is required", http.StatusBadRequest, "error", nil))
 		return
 	}
+
 	penjadwalans, err := h.penjadwalanService.FindAllByMasjidName(namaMasjid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, helper.APIResponse("Failed to fetch Penjadwalan data", http.StatusInternalServerError, "error", nil))
 		return
 	}
-	var formattedPenjadwalan []penjadwalan.PenjadwalanFormatter
-	for _, q := range penjadwalans {
-		formattedPenjadwalan = append(formattedPenjadwalan, penjadwalan.FormatPenjadwalan(q))
+
+	// Gabungkan semua jadwal dari setiap penjadwalan ke satu list jadwal
+	var allJadwal []penjadwalan.Jadwal
+	for _, p := range penjadwalans {
+		jadwalList := penjadwalan.FormatPenjadwalanToJadwalList(p)
+		allJadwal = append(allJadwal, jadwalList...)
 	}
 
-	c.JSON(http.StatusOK, helper.APIResponse("List of Penjadwalan data by masjid name", http.StatusOK, "success", formattedPenjadwalan))
+	c.JSON(http.StatusOK, helper.APIResponse("List of Penjadwalan data by masjid name", http.StatusOK, "success", allJadwal))
 }

@@ -11,6 +11,12 @@ type PenjadwalanFormatter struct {
 	AntrianKetiga string `json:"antrian_ketiga"`
 }
 
+type Jadwal struct {
+  Waktu    time.Time `json:"waktu"`
+  Antrian  string    `json:"antrian"`
+}
+
+
 func FormatPenjadwalan(penjadwalan Penjadwalan) PenjadwalanFormatter {
 	formatter := PenjadwalanFormatter {
 		WaktuPertama: penjadwalan.WaktuPertama,
@@ -30,4 +36,21 @@ func FormatPenjadwalanList(penjadwalanList []Penjadwalan) []PenjadwalanFormatter
 	}
 
 	return formattedList
+}
+
+func FormatPenjadwalanToJadwalList(penjadwalan Penjadwalan) []Jadwal {
+  return []Jadwal{
+    {
+      Waktu:   penjadwalan.WaktuPertama,
+      Antrian: penjadwalan.AntrianPertama,
+    },
+    {
+      Waktu:   penjadwalan.WaktuKedua,
+      Antrian: penjadwalan.AntrianKedua,
+    },
+    {
+      Waktu:   penjadwalan.WaktuKetiga,
+      Antrian: penjadwalan.AntrianKetiga,
+    },
+  }
 }
