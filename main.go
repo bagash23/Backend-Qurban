@@ -145,6 +145,7 @@ func autoMigrate(db *gorm.DB) {
 		&user.User{},
 		&pengurus.Pengurus{},
 		&qurban.Qurban{},
+		&qurban.Images{},
 		&penjadwalan.Penjadwalan{},
 	)
 	if err != nil {
